@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Shared Infrastructure
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: vaakshastra
+      POSTGRES_PASSWORD: vaakshastra
+      POSTGRES_DB: vaakshastra
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vaakshastra"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Agent 1: VaakShastra (Day 01)
+  vaakshastra:
+    build: 
+      context: ../Day01_VaakShastra
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../Day01_VaakShastra/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://vaakshastra:vaakshastra@postgres:5432/vaakshastra
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # Agent 2: GhostCFO (Day 02)
+  ghostcfo:
+    build:
+      context: .
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://vaakshastra:vaakshastra@postgres:5432/vaakshastra
+      - VAAKSHASTRA_BASE_URL=http://vaakshastra:8000
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  postgres_data:
