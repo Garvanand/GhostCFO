@@ -1,31 +1,19 @@
-# GhostCFO - AgentOS Day 02
+# Day02_GhostCFO
 
-GhostCFO is the proactive financial intelligence module for AgentOS. It acts as an elite AI CFO for Indian solo founders and freelancers, analyzing bank statements, tracking runway, and surfacing insights before they become crises.
+## Overview
+Financial Planning & Cash Flow management agent.
 
-## Core Capabilities
-- **Multi-Bank PDF Parsing:** Supports HDFC, ICICI, SBI, and Axis via `pdfplumber` and `PyMuPDF`, with a Claude Vision fallback for scanned images.
-- **Proactive Intelligence:** Cash flow engine projects balances up to 30 days forward across 3 scenarios (pessimistic, base, optimistic).
-- **Proactive Alerts:** Detects cash cliffs (<21 days), rate anomalies (>20% income drop), and expense spikes.
-- **Briefing Generator:** A LangGraph pipeline that synthesizes the financial snapshot into a crisp, exactly 3-sentence narrative.
-- **AgentOS Shared Memory:** Extracts privacy-safe 'stress bands' and shares them with other agents via Redis.
+This module was developed as part of the 30-Day AgentOS architecture build.
 
-## Architecture Highlights
-- **Privacy First:** Per-user Fernet encryption via HKDF for all sensitive transaction fields (`description`, `counterparty`).
-- **3-Tier Classification:** 
-  1. Regex rules (~60% of volume, zero cost)
-  2. Groq batch LLM (fast, cheap)
-  3. Claude 3.5 Sonnet (complex edge cases)
-- **Frameworks:** FastAPI, LangGraph, PostgreSQL (Partitioned), Redis.
+## Core Features
+- **Autonomous execution capabilities**: Capable of independent processing in its domain.
+- **Integrated observability and tracing**: Hooks into the AgentOS unified logging schema.
+- **Adheres to the Zero-Tolerance Safety Framework**: Inherits constraints verified by `test_zero_tolerance_audit.py`.
 
 ## Getting Started
+1. Ensure you have the required `.env` variables mapped according to the system configuration.
+2. Install dependencies via `pip install -r requirements.txt` (if applicable).
+3. Run the service natively through the standard Python `uvicorn server.main:app` command, or utilize the provided testing suite `pytest`.
 
-1. Create a Master Encryption Key:
-```bash
-python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-```
-2. Add the key to your `.env` file along with your API keys (see `.env.example`).
-3. Run the complete AgentOS stack:
-```bash
-docker-compose up --build
-```
-GhostCFO runs on port `8001`. VaakShastra runs on `8000`.
+## Documentation
+Refer to the master **AgentOS orchestration notes** in the Day 30 directory for cross-agent capabilities, API schema usage, and how this agent fits into the master workflow.
